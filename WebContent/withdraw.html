@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=0">
+<meta charset="utf-8" />
+<link rel="stylesheet" href="css/core.css">
+<link rel="stylesheet" href="css/main.css">
+
+
+<title>MySNS</title>
+<style>
+.pad-4 { padding: 0 4px; }
+.pad-8 { padding: 0 8px; }
+
+textarea {
+	float: left;
+	width: 100%;
+	height: 160px;
+	padding: 16px;
+	box-sizing: border-box;
+	font-size: 1.0em;
+	font-family: 'Malgun Gothic', 'Arial'; 
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	outline: none;
+}
+input[type=file] {
+	padding: 0px;
+	border: none;
+	outline: none;
+	font-size: 0.95em;
+}
+.desc {
+	float: left;
+	width: 100%;
+	margin-bottom: 5px;
+	font-size: 0.95em;
+	color: #888;
+}
+</style>
+</head>
+<body>
+	<div class="page-hdr">MySNS</div>
+	<div class="page-body">
+		<div class="page-mnu">
+			<div class="menu" onclick="goHome()">홈</div>
+			<div class="menu" onclick="logout()">로그아웃</div>
+			<div class="menu" onclick="withdraw()">회원탈퇴</div>
+			</div>
+			<div class="section pad-24 mtop-30">
+				<div class="section pad-8 mbot-20">
+				아이디: <span id="id2"></span>
+			</div>
+			<input id="id" type="text" class="mbot-10" placeholder="아이디 (확인)">
+			<input id="name" type="text" class="mbot-10" placeholder="이름">
+			<textarea id="desc" placeholder="탈퇴사유를 작성해주세요."></textarea>
+			<div class="section pad-4 mtop-30">
+			</div>
+			<input type="submit" class="mtop-30" value="탈퇴하기" onclick="withdraw()">
+			</div>
+	</div>
+	<div class="page-footer">Copyright: mysns.com, 202x</div>
+</body>
+
+</html>
+<script src="js/jquery-3.6.1.min.js"></script>
+<script src="js/core.js"></script>
+
+<script>
+
+$(document).ready(function() {
+	Page.init(start);
+	
+	
+});
+
+var userObj = null;
+function start(uid) {
+		var params = {id: uid}; 
+		AJAX.call("jsp/userGet.jsp", params, function(data) {
+			userObj = JSON.parse(data.trim());
+			setPage(userObj);
+	}); 
+}
+
+
+
+function setPage(uobj) {
+	if (uobj == null) return;
+	$("#id2").html(uobj.id);
+	$("#name").val(uobj.name);
+
+}
+
+function withdraw (){
+	
+	var id = $("#id").val().trim();
+	if (id == "") {
+	alert("아이디를 입력해 주세요.");
+	$("#id").focus();
+	return;
+	}
+
+	var url ="jsp/withdraw.jsp?id=" + id;
+	AJAX.call(url, null, function(data) {
+	var code = data.trim();
+	if(code == "OK") {
+	alert("탈퇴 처리가 완료되었습니다.");
+	window.location.href = "login.html";
+
+	}
+	else if(code == "ER") {
+	alert("에러가 발생하였습니다.다시 시도해주세요");
+	}
+	else {
+	window.location.href = "main.html";
+	}
+	});
+
+}
+/*
+function withdraw(){
+AJAX.call("jsp/withdraw.jsp",params, function(data) {
+	var params = {id: id};
+	var code = data.trim();
+	if(code == "OK") {
+		alert("탈퇴 처리가 완료되었습니다.");
+		window.location.href = "login.html";
+	}
+	else if(code == "ER") {
+		alert("회원탈퇴 처리중 에러가 발생하였습니다.");
+}
+	else {
+		alert("오류 발생");
+		
+}
+});
+
+}
+*/
+
+function goHome() {
+	window.location.href = "main.html";
+	}
+
+function logout() {
+	AJAX.call("jsp/logout.jsp", null, function(data) {
+		DataCache.remove("mainCache");	
+	alert("로그아웃을 완료하였습니다.");
+	window.location.href = "login.html";
+	});
+	}
+	
+	
+
+</script>
+	
